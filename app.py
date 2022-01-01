@@ -14,23 +14,112 @@ load_dotenv()
 
 
 machine = TocMachine(
-    states=["user", "state1", "state2"],
+    states=["start", "menu", "illustrated_book", "section", "attribute", "ID", "introduction", "generation1", "generation2", "generation3", "generation4", "generation5", "generation6", "generation7", "generation8"],
     transitions=[
         {
             "trigger": "advance",
-            "source": "user",
-            "dest": "state1",
-            "conditions": "is_going_to_state1",
+            "source": "start",
+            "dest": "menu",
+            "conditions": "is_going_to_menu",
         },
         {
             "trigger": "advance",
-            "source": "user",
-            "dest": "state2",
-            "conditions": "is_going_to_state2",
+            "source": "menu",
+            "dest": "illustrated_book",
+            "conditions": "is_going_to_illustrated_book",
         },
-        {"trigger": "go_back", "source": ["state1", "state2"], "dest": "user"},
+        {
+            "trigger": "advance",
+            "source": "illustrated_book",
+            "dest": "section",
+            "conditions": "is_going_to_section",
+        },
+        {
+            "trigger": "advance",
+            "source": "section",
+            "dest": "attribute",
+            "conditions": "is_going_to_attribute",
+        },
+        {
+            "trigger": "advance",
+            "source": "attribute",
+            "dest": "ID",
+            "conditions": "is_going_to_ID",
+        },
+        {
+            "trigger": "advance", 
+            "source": "ID", 
+            "dest": "illustrated_book",
+            "conditions": "go_back_to_illustrated_book",
+        },
+        {
+            "trigger": "advance",
+            "source": "menu",
+            "dest": "introduction",
+            "conditions": "is_going_to_introduction",
+        },
+        {
+            "trigger": "advance",
+            "source": "introduction",
+            "dest": "generation1",
+            "conditions": "is_going_to_generation1",
+        },
+        {
+            "trigger": "advance",
+            "source": "introduction",
+            "dest": "generation2",
+            "conditions": "is_going_to_generation2",
+        },
+        {
+            "trigger": "advance",
+            "source": "introduction",
+            "dest": "generation3",
+            "conditions": "is_going_to_generation3",
+        },
+        {
+            "trigger": "advance",
+            "source": "introduction",
+            "dest": "generation4",
+            "conditions": "is_going_to_generation4",
+        },
+        {
+            "trigger": "advance",
+            "source": "introduction",
+            "dest": "generation5",
+            "conditions": "is_going_to_generation5",
+        },
+        {
+            "trigger": "advance",
+            "source": "introduction",
+            "dest": "generation6",
+            "conditions": "is_going_to_generation6",
+        },
+        {
+            "trigger": "advance",
+            "source": "introduction",
+            "dest": "generation7",
+            "conditions": "is_going_to_generation7",
+        },
+        {
+            "trigger": "advance",
+            "source": "introduction",
+            "dest": "generation8",
+            "conditions": "is_going_to_generation8",
+        },
+        {
+            "trigger": "advance", 
+            "source": ["generation1", "generation2", "generation3", "generation4", "generation5", "generation6", "generation7", "generation8"], 
+            "dest": "introduction",
+            "conditions": "go_back_to_introduction",
+        },
+        {
+            "trigger": "advance", 
+            "source": ["illustrated_book", "section", "attribute", "ID", "introduction", "generation1", "generation2", "generation3", "generation4", "generation5", "generation6", "generation7", "generation8"], 
+            "dest": "menu",
+            "conditions": "go_back_to_menu",
+        },
     ],
-    initial="user",
+    initial="start",
     auto_transitions=False,
     show_conditions=True,
 )
@@ -104,7 +193,7 @@ def webhook_handler():
         print(f"REQUEST BODY: \n{body}")
         response = machine.advance(event)
         if response == False:
-            send_text_message(event.reply_token, "Not Entering any State")
+            send_text_message(event.reply_token, "輸入錯誤!請重新輸入")
 
     return "OK"
 
@@ -118,3 +207,4 @@ def show_fsm():
 if __name__ == "__main__":
     port = os.environ.get("PORT", 8000)
     app.run(host="0.0.0.0", port=port, debug=True)
+    machine.get_graph().draw("fsm.png", prog="dot", format="png")
